@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M3 Android Quick Settings + Dialog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&family=Google+Symbols:opsz,wght,FILL,GRAD@24,400,0..1,0&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --qs-bg: #14281f;
+      --qs-tile-inactive: #1c382b;
+      --qs-tile-inactive-dark: #102219;
+      --qs-tile-active: #bcf3cb;
+      --qs-on-active: #093717;
+      --qs-on-inactive: #e1e9e3;
+      --qs-on-inactive-dim: #9ab3a1;
+
+      /* Dialog M3 Tokens */
+      --qs-dialog-surface: #13241c;
+      --qs-row-active-bg: #23473b;
+      --qs-row-inactive-bg: #182e25;
+      --qs-badge-active-bg: #a0e6d6;
+      --qs-badge-active-fg: #0a372e;
+      --qs-badge-inactive-bg: #294438;
+      --qs-badge-inactive-fg: #cde6dc;
+
+      /* Widget tokens (nested cleaner) */
+      --qs-widget-bg: #1c382b;
+      --qs-widget-inner: #0f2018;
+      --qs-widget-dim: #8aa79a;
+
+      --radius-track-outer: 24px;
+      --radius-track-inner: 4px;
+      --radius-full: 9999px;
+      --radius-squircle: 20px;
+
+      /* Segmented List Group Shape Tokens */
+      --radius-group-outer: 28px;
+      --radius-group-inner: 4px;
+
+      --font-family: 'Google Sans Flex', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: #0b1510;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: var(--font-family);
+      color: var(--qs-on-inactive);
+    }
+
+    .icon {
+      font-family: 'Google Symbols';
+      font-weight: 400;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      display: inline-block;
+      white-space: nowrap;
+      direction: ltr;
+      pointer-events: none;
+    }
+
+    .qs-panel {
+      width: 760px;
+      max-width: calc(100vw - 32px);
+      background-color: var(--qs-bg);
+      border-radius: 44px;
+      padding: 22px 18px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Tablet shell: header + 2-pane body */
+    .qs-shell-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 8px 2px;
+      gap: 12px;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #bcf3cb, #a0e6d6);
+      color: #093717;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .user-texts { display: flex; flex-direction: column; line-height: 1.2; }
+    .user-name { font-size: 14px; font-weight: 600; }
+    .user-date { font-size: 12px; color: var(--qs-on-inactive-dim); font-weight: 500; }
+
+    .battery-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--qs-on-inactive);
+      background: var(--qs-tile-inactive);
+      padding: 6px 12px 6px 10px;
+      border-radius: var(--radius-full);
+    }
+    .battery-pill .icon { font-size: 18px; }
+
+    .qs-body {
+      display: grid;
+      grid-template-columns: 1fr 268px;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .qs-main {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .qs-widgets {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    @media (max-width: 720px) {
+      .qs-panel { width: 416px; }
+      .qs-body { grid-template-columns: 1fr; }
+      .qs-widgets { flex-direction: column; }
+    }
+
+    /* Top Utility Actions */
+    .qs-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 8px 2px;
+    }
+
+    .qs-top-group {
+      display: flex;
+      gap: 22px;
+    }
+
+    .qs-icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--qs-on-inactive);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: var(--radius-full);
+      transition: background-color 0.2s ease;
+    }
+
+    .qs-icon-btn:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .qs-icon-btn .icon {
+      font-size: 20px;
+    }
+
+    /* Sliders Stack */
+    .sliders-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .slider-track-wrap {
+      width: 100%;
+      height: 56px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    .slider-rail {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .slider-filled {
+      height: 100%;
+      background-color: var(--qs-tile-active);
+      color: var(--qs-on-active);
+      border-top-left-radius: var(--radius-track-outer);
+      border-bottom-left-radius: var(--radius-track-outer);
+      border-top-right-radius: var(--radius-track-inner);
+      border-bottom-right-radius: var(--radius-track-inner);
+      display: flex;
+      align-items: center;
+      padding-left: 18px;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .slider-handle {
+      width: 4px;
+      height: 64px;
+      background-color: var(--qs-tile-active);
+      border-radius: var(--radius-full);
+      flex-shrink: 0;
+      z-index: 3;
+      transition: height 0.15s cubic-bezier(0.2, 0, 0, 1), transform 0.15s ease;
+    }
+
+    .slider-track-wrap.active .slider-handle {
+      height: 72px;
+      transform: scaleX(1.3);
+    }
+
+    .slider-remaining {
+      height: 100%;
+      flex: 1;
+      background-color: var(--qs-tile-inactive);
+      color: var(--qs-on-inactive);
+      border-top-left-radius: var(--radius-track-inner);
+      border-bottom-left-radius: var(--radius-track-inner);
+      border-top-right-radius: var(--radius-track-outer);
+      border-bottom-right-radius: var(--radius-track-outer);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 16px;
+      padding-left: 18px;
+      z-index: 1;
+    }
+
+    .slider-stop-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: var(--radius-full);
+      background-color: var(--qs-tile-active);
+      opacity: 0.7;
+    }
+
+    .slider-track-wrap[data-pos="0"] .slider-filled { display: none; }
+    .slider-track-wrap[data-pos="0"] .slider-handle { margin-left: 0; }
+    .slider-track-wrap[data-pos="0"] .slider-remaining {
+      border-top-left-radius: var(--radius-track-outer);
+      border-bottom-left-radius: var(--radius-track-outer);
+      justify-content: space-between;
+    }
+
+    .slider-track-wrap[data-pos="1"] .slider-remaining { display: none; }
+    .slider-track-wrap[data-pos="1"] .slider-filled {
+      border-top-right-radius: var(--radius-track-outer);
+      border-bottom-right-radius: var(--radius-track-outer);
+    }
+
+    /* Grid Layout */
+    .qs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    /* Standard Interactive Tiles */
+    .matrix-tile {
+      height: 68px;
+      border-radius: 34px;
+      background-color: var(--qs-tile-inactive);
+      color: var(--qs-on-inactive);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background-color 0.25s cubic-bezier(0.2, 0, 0, 1), 
+                  color 0.25s cubic-bezier(0.2, 0, 0, 1), 
+                  border-radius 0.25s cubic-bezier(0.2, 0, 0, 1),
+                  transform 0.1s ease;
+    }
+
+    .matrix-tile:active { transform: scale(0.96); }
+
+    .matrix-tile.active {
+      background-color: var(--qs-tile-active);
+      color: var(--qs-on-active);
+      border-radius: var(--radius-squircle);
+    }
+
+    .matrix-tile.small { grid-column: span 1; }
+    .matrix-tile.wide {
+      grid-column: span 2;
+      justify-content: flex-start;
+      padding: 0 16px;
+      gap: 12px;
+    }
+
+    .tile-text-block {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .tile-text-block .tile-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .tile-text-block .tile-subtitle {
+      font-size: 11px;
+      font-weight: 500;
+      opacity: 0.8;
+      margin-top: 1px;
+    }
+
+    /* Split Button / Tile Combo */
+    .split-tile {
+      grid-column: span 2;
+      height: 68px;
+      border-radius: 34px;
+      background-color: var(--qs-tile-inactive);
+      color: var(--qs-on-inactive);
+      display: flex;
+      align-items: center;
+      padding: 6px;
+      gap: 10px;
+      transition: border-radius 0.25s cubic-bezier(0.2, 0, 0, 1);
+      position: relative;
+    }
+
+    .split-tile.active { border-radius: var(--radius-squircle); }
+
+    .split-toggle-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-full);
+      background-color: var(--qs-tile-inactive-dark);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--qs-on-inactive);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1), 
+                  color 0.2s cubic-bezier(0.2, 0, 0, 1),
+                  border-radius 0.25s cubic-bezier(0.2, 0, 0, 1),
+                  border-color 0.2s ease;
+    }
+
+    .split-toggle-btn:hover { background-color: #0d1a14; }
+
+    .split-tile.active .split-toggle-btn {
+      background-color: var(--qs-tile-active);
+      color: var(--qs-on-active);
+      border-radius: 16px;
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    .split-text-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      height: 100%;
+      border-radius: 0 28px 28px 0;
+      padding-right: 8px;
+    }
+
+    .split-text-area:hover { opacity: 0.9; }
+
+    /* Bottom Row Controls */
+    .dock-tile {
+      height: 68px;
+      border-radius: 34px;
+      background-color: var(--qs-tile-inactive);
+      color: var(--qs-on-inactive);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.25s ease, border-radius 0.25s ease, transform 0.1s ease;
+    }
+
+    .dock-tile:active { transform: scale(0.92); }
+    .dock-tile.active {
+      background-color: var(--qs-tile-active);
+      color: var(--qs-on-active);
+      border-radius: var(--radius-squircle);
+    }
+    .dock-tile .icon { font-size: 22px; opacity: 0.85; }
+
+    /* =========================================================
+       MORPH MODAL & SEGMENTED BLUETOOTH LIST
+       ========================================================= */
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s cubic-bezier(0.2, 0, 0, 1);
+      z-index: 10;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .morph-wrapper {
+      position: absolute;
+      background-color: var(--qs-dialog-surface);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 20;
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      pointer-events: none;
+      transition: 
+        top 0.38s cubic-bezier(0.05, 0.7, 0.1, 1),
+        left 0.38s cubic-bezier(0.05, 0.7, 0.1, 1),
+        width 0.38s cubic-bezier(0.05, 0.7, 0.1, 1),
+        height 0.38s cubic-bezier(0.05, 0.7, 0.1, 1),
+        border-radius 0.38s cubic-bezier(0.05, 0.7, 0.1, 1),
+        opacity 0.25s ease;
+    }
+
+    .morph-wrapper.active {
+      display: flex;
+      pointer-events: auto;
+    }
+
+    .modal-content-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 22px 16px 18px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s ease 0.1s, transform 0.25s cubic-bezier(0.1, 0.9, 0.2, 1) 0.1s;
+      min-height: 0;
+    }
+
+    .morph-wrapper.expanded .modal-content-container {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .modal-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 0 6px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .modal-chip-btn {
+      background: var(--qs-tile-active);
+      color: var(--qs-on-active);
+      border: none;
+      border-radius: var(--radius-full);
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Segmented List Group Container */
+    .dialog-rows-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 12px;
+      padding: 2px;
+    }
+
+    /* Base Item */
+    .dialog-row-item {
+      height: 72px;
+      background-color: var(--qs-row-inactive-bg);
+      display: flex;
+      align-items: center;
+      padding: 0 14px 0 16px;
+      gap: 14px;
+      cursor: pointer;
+      border: none;
+      color: inherit;
+      font-family: inherit;
+      width: 100%;
+      text-align: left;
+      transition: background-color 0.25s cubic-bezier(0.2, 0, 0, 1), 
+                  border-radius 0.25s cubic-bezier(0.2, 0, 0, 1), 
+                  transform 0.1s ease;
+    }
+
+    .dialog-row-item:active {
+      transform: scale(0.985);
+    }
+
+    /* Segmented Inactive Geometry */
+    .dialog-row-item:first-child {
+      border-top-left-radius: var(--radius-group-outer);
+      border-top-right-radius: var(--radius-group-outer);
+      border-bottom-left-radius: var(--radius-group-inner);
+      border-bottom-right-radius: var(--radius-group-inner);
+    }
+
+    .dialog-row-item:not(:first-child):not(:last-child) {
+      border-radius: var(--radius-group-inner);
+    }
+
+    .dialog-row-item:last-child {
+      border-top-left-radius: var(--radius-group-inner);
+      border-top-right-radius: var(--radius-group-inner);
+      border-bottom-left-radius: var(--radius-group-outer);
+      border-bottom-right-radius: var(--radius-group-outer);
+    }
+
+    /* Active State: All 4 corners round out completely */
+    .dialog-row-item.active {
+      background-color: var(--qs-row-active-bg);
+      border-radius: var(--radius-group-outer) !important;
+    }
+
+    /* Circular Icon Badge */
+    .dialog-icon-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: var(--qs-badge-inactive-bg);
+      color: var(--qs-badge-inactive-fg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .dialog-icon-badge .icon {
+      font-size: 22px;
+    }
+
+    .dialog-row-item.active .dialog-icon-badge {
+      background-color: var(--qs-badge-active-bg);
+      color: var(--qs-badge-active-fg);
+    }
+
+    /* Stacked Text Labels */
+    .dialog-row-texts {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .dialog-row-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--qs-on-inactive);
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .dialog-row-subtitle {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--qs-on-inactive-dim);
+      margin-top: 2px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    /* Settings Gear Button */
+    .dialog-row-settings-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: var(--qs-on-inactive-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .dialog-row-settings-btn:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: var(--qs-on-inactive);
+    }
+
+    .dialog-row-item.active .dialog-row-settings-btn {
+      color: var(--qs-badge-active-bg);
+    }
+
+    .dialog-row-settings-btn .icon {
+      font-size: 20px;
+    }
+
+    /* Actions Footer */
+    .modal-actions-footer {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .action-text-btn {
+      background: transparent;
+      border: none;
+      color: var(--qs-tile-active);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 8px 18px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .action-text-btn:hover {
+      background-color: rgba(188, 243, 203, 0.1);
+    }
+
+    .action-text-btn.neutral {
+      color: var(--qs-on-inactive-dim);
+    }
+
+    .action-text-btn.neutral:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    /* =========================================================
+       WIDGETS — individual organized cards (tablet right pane)
+       ========================================================= */
+    .widget {
+      background-color: var(--qs-widget-bg);
+      border-radius: 28px;
+      padding: 16px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .widget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+    }
+
+    .widget-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .widget-nav {
+      display: flex;
+      gap: 6px;
+    }
+
+    .cal-nav-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(225,233,227,0.35);
+      background: transparent;
+      color: var(--qs-on-inactive);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+    .cal-nav-btn:hover { background: rgba(255,255,255,0.1); }
+    .cal-nav-btn:active { transform: scale(0.92); }
+    .cal-nav-btn .icon { font-size: 18px; }
+
+    /* Nested inner surface — cleaner than ref */
+    .cal-inner {
+      background-color: var(--qs-widget-inner);
+      border-radius: 20px;
+      padding: 12px 10px 10px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--qs-widget-dim);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+
+    .cal-day {
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12.5px;
+      font-weight: 500;
+      border-radius: 50%;
+      cursor: pointer;
+      color: var(--qs-on-inactive);
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+      aspect-ratio: 1;
+      width: 100%;
+      max-width: 32px;
+      margin: 0 auto;
+    }
+    .cal-day:hover:not(.selected) { background: rgba(255,255,255,0.09); }
+    .cal-day:active { transform: scale(0.9); }
+    .cal-day.other { opacity: 0.32; font-weight: 400; }
+    .cal-day.selected {
+      background: var(--qs-tile-active);
+      color: var(--qs-on-active);
+      font-weight: 700;
+    }
+    .cal-day.today:not(.selected) {
+      box-shadow: inset 0 0 0 1.5px var(--qs-tile-active);
+    }
+
+    .cal-agenda {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .agenda-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.22);
+      border-radius: 16px;
+      padding: 8px 10px;
+      cursor: pointer;
+      border: none;
+      color: inherit;
+      font-family: inherit;
+      text-align: left;
+      width: 100%;
+      transition: background 0.2s ease;
+    }
+    .agenda-row:hover { background: rgba(0,0,0,0.32); }
+    .agenda-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .agenda-texts { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .agenda-title { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .agenda-time { font-size: 11px; color: var(--qs-on-inactive-dim); }
+
+    .widget-mini {
+      flex-direction: row;
+      align-items: center;
+    }
+    .mini-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--qs-badge-inactive-bg);
+      color: var(--qs-badge-inactive-fg);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .mini-icon .icon { font-size: 20px; }
+    .mini-texts { flex: 1; min-width: 0; }
+    .mini-title { font-size: 13px; font-weight: 600; }
+    .mini-sub { font-size: 11px; color: var(--qs-on-inactive-dim); margin-top: 1px; }
+  </style>
+</head>
+<body>
+
+  <!-- Main Quick Settings Panel - tablet 2-pane -->
+  <div class="qs-panel" id="rootParent">
+    
+    <!-- Shell Header: user + date + battery + actions -->
+    <div class="qs-shell-header">
+      <div class="user-chip">
+        <div class="avatar">M</div>
+        <div class="user-texts">
+          <span class="user-name">Mvk</span>
+          <span class="user-date" id="shellDate">Fri, Sep 11</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="battery-pill"><span class="icon">battery_full</span><span>82%</span></div>
+        <div class="qs-top-group">
+          <button class="qs-icon-btn" title="Edit"><span class="icon">edit</span></button>
+          <button class="qs-icon-btn" title="Settings"><span class="icon">settings</span></button>
+          <button class="qs-icon-btn" title="Power"><span class="icon">power_settings_new</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="qs-body">
+      <div class="qs-main">
+    <!-- Sliders Stack -->
+    <div class="sliders-stack">
+      <div class="slider-track-wrap" id="brightnessSlider">
+        <div class="slider-rail">
+          <div class="slider-filled">
+            <span class="icon" id="brightnessIcon">brightness_6</span>
+          </div>
+          <div class="slider-handle"></div>
+          <div class="slider-remaining">
+            <div class="slider-stop-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slider-track-wrap" id="volumeSlider">
+        <div class="slider-rail">
+          <div class="slider-filled">
+            <span class="icon" id="volumeIconFilled">volume_up</span>
+          </div>
+          <div class="slider-handle"></div>
+          <div class="slider-remaining">
+            <span class="icon" id="volumeIconRemaining" style="display: none;">volume_off</span>
+            <div class="slider-stop-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Settings Matrix -->
+    <div class="qs-grid">
+      <!-- Row 1: Merged Internet Tile + Split Bluetooth Tile -->
+      <button class="matrix-tile wide" data-toggle>
+        <span class="icon">wifi</span>
+        <div class="tile-text-block">
+          <span class="tile-title">Internet</span>
+          <span class="tile-subtitle">Off</span>
+        </div>
+      </button>
+
+      <!-- Bluetooth Split Tile -->
+      <div class="split-tile active" id="bluetoothTile">
+        <button class="split-toggle-btn" id="bluetoothToggleBtn" title="Toggle Bluetooth">
+          <span class="icon">bluetooth</span>
+        </button>
+        <div class="split-text-area" id="bluetoothOpenModal">
+          <span class="tile-title" style="font-size: 14px; font-weight: 600;">Bluetooth</span>
+          <span class="tile-subtitle" style="font-size: 11px; opacity: 0.8;">On</span>
+        </div>
+      </div>
+
+      <!-- Row 2: Device Control + Split Quick Share Tile -->
+      <button class="matrix-tile wide" data-toggle>
+        <span class="icon">pets</span>
+        <div class="tile-text-block">
+          <span class="tile-title">Device Control</span>
+          <span class="tile-subtitle">Off</span>
+        </div>
+      </button>
+
+      <!-- Quick Share Split Tile -->
+      <div class="split-tile" id="quickShareTile">
+        <button class="split-toggle-btn" id="quickShareToggleBtn" title="Toggle Quick Share">
+          <span class="icon">nearby_share</span>
+        </button>
+        <div class="split-text-area">
+          <span class="tile-title" style="font-size: 14px; font-weight: 600;">Quick Share</span>
+          <span class="tile-subtitle" style="font-size: 11px; opacity: 0.8;">Off</span>
+        </div>
+      </div>
+
+      <!-- Row 3: 4 Small 1x1 Tiles -->
+      <button class="matrix-tile small" data-toggle>
+        <span class="icon">flashlight_on</span>
+      </button>
+      <button class="matrix-tile small active" data-toggle>
+        <span class="icon">airplanemode_active</span>
+      </button>
+      <button class="matrix-tile small" data-toggle>
+        <span class="icon">screen_rotation</span>
+      </button>
+      <button class="matrix-tile small" data-toggle>
+        <span class="icon">dark_mode</span>
+      </button>
+    </div>
+
+    <!-- Bottom Row (Cast, Alarm, Home, Camera) -->
+    <div class="qs-grid">
+      <button class="dock-tile" data-toggle><span class="icon">cast</span></button>
+      <button class="dock-tile" data-toggle><span class="icon">alarm</span></button>
+      <button class="dock-tile" data-toggle><span class="icon">home</span></button>
+      <button class="dock-tile" data-toggle><span class="icon">camera_indoor</span></button>
+    </div>
+      </div><!-- /qs-main -->
+
+      <div class="qs-widgets">
+        <!-- Calendar Widget — nested cleaner, inspired by ref -->
+        <div class="widget" id="calendarWidget">
+          <div class="widget-header">
+            <span class="widget-title" id="calTitle">August 2026</span>
+            <div class="widget-nav">
+              <button class="cal-nav-btn" id="calPrev" title="Previous month"><span class="icon">chevron_left</span></button>
+              <button class="cal-nav-btn" id="calNext" title="Next month"><span class="icon">chevron_right</span></button>
+            </div>
+          </div>
+
+          <div class="cal-inner">
+            <div class="cal-weekdays">
+              <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+          </div>
+
+          <div class="cal-agenda">
+            <button class="agenda-row">
+              <span class="agenda-dot" style="background:#bcf3cb"></span>
+              <span class="agenda-texts">
+                <span class="agenda-title">Design review</span>
+                <span class="agenda-time">Today • 10:00</span>
+              </span>
+              <span class="icon" style="font-size:18px;opacity:.6">chevron_right</span>
+            </button>
+            <button class="agenda-row">
+              <span class="agenda-dot" style="background:#a0e6d6"></span>
+              <span class="agenda-texts">
+                <span class="agenda-title">Shell polish pass</span>
+                <span class="agenda-time">Wed • 14:30</span>
+              </span>
+              <span class="icon" style="font-size:18px;opacity:.6">chevron_right</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Media mini widget (individual, organized) -->
+        <div class="widget widget-mini">
+          <div class="mini-icon"><span class="icon">music_note</span></div>
+          <div class="mini-texts">
+            <div class="mini-title">Midnight Drive</div>
+            <div class="mini-sub">Neon Coast • Paused</div>
+          </div>
+          <button class="qs-icon-btn"><span class="icon">play_arrow</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Backdrop Dimmer -->
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
+    <!-- Morphing Shared-Element Modal -->
+    <div class="morph-wrapper" id="morphWrapper">
+      <div class="modal-content-container">
+        <!-- Header -->
+        <div class="modal-header-row">
+          <span class="modal-title">Bluetooth</span>
+          <button class="modal-chip-btn">
+            <span class="icon" style="font-size: 18px;">add</span>
+            <span>Pair</span>
+          </button>
+        </div>
+
+        <!-- Segmented Bluetooth Device List with Settings Buttons -->
+        <div class="dialog-rows-list">
+          <!-- Item 1: Active Connected Headphones -->
+          <div class="dialog-row-item active" data-row-toggle>
+            <div class="dialog-icon-badge">
+              <span class="icon">headphones</span>
+            </div>
+            <div class="dialog-row-texts">
+              <span class="dialog-row-title">WH-1000XM5</span>
+              <span class="dialog-row-subtitle">Connected • 80% battery</span>
+            </div>
+            <button class="dialog-row-settings-btn" title="Device settings" onclick="event.stopPropagation();">
+              <span class="icon">settings</span>
+            </button>
+          </div>
+
+          <!-- Item 2: Saved Keyboard -->
+          <div class="dialog-row-item" data-row-toggle>
+            <div class="dialog-icon-badge">
+              <span class="icon">keyboard</span>
+            </div>
+            <div class="dialog-row-texts">
+              <span class="dialog-row-title">Keychron Q1 Pro</span>
+              <span class="dialog-row-subtitle">Saved</span>
+            </div>
+            <button class="dialog-row-settings-btn" title="Device settings" onclick="event.stopPropagation();">
+              <span class="icon">settings</span>
+            </button>
+          </div>
+
+          <!-- Item 3: Saved Controller -->
+          <div class="dialog-row-item" data-row-toggle>
+            <div class="dialog-icon-badge">
+              <span class="icon">sports_esports</span>
+            </div>
+            <div class="dialog-row-texts">
+              <span class="dialog-row-title">Xbox Wireless Controller</span>
+              <span class="dialog-row-subtitle">Saved</span>
+            </div>
+            <button class="dialog-row-settings-btn" title="Device settings" onclick="event.stopPropagation();">
+              <span class="icon">settings</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Actions Footer -->
+        <div class="modal-actions-footer">
+          <button class="action-text-btn neutral" id="modalCancelBtn">Cancel</button>
+          <button class="action-text-btn" id="modalDoneBtn">Done</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* Standard Quick Settings Tiles Toggle */
+    document.querySelectorAll('[data-toggle]').forEach(button => {
+      button.addEventListener('click', () => {
+        button.classList.toggle('active');
+        const subtitle = button.querySelector('.tile-subtitle');
+        if (subtitle) {
+          subtitle.textContent = button.classList.contains('active') ? 'On' : 'Off';
+        }
+      });
+    });
+
+    /* Dialog Row Active State (Toggles all 4 corners and active styling) */
+    document.querySelectorAll('[data-row-toggle]').forEach(row => {
+      row.addEventListener('click', () => {
+        row.classList.toggle('active');
+        const subtitle = row.querySelector('.dialog-row-subtitle');
+        if (subtitle) {
+          if (row.classList.contains('active')) {
+            subtitle.textContent = 'Connected';
+          } else {
+            subtitle.textContent = 'Saved';
+          }
+        }
+      });
+    });
+
+    /* Special Case Dual Tiles (Bluetooth & Quick Share) */
+    function initSplitTile(containerId, buttonId) {
+      const container = document.getElementById(containerId);
+      const btn = document.getElementById(buttonId);
+      const subtitle = container.querySelector('.tile-subtitle');
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        container.classList.toggle('active');
+        const isActive = container.classList.contains('active');
+        if (subtitle) subtitle.textContent = isActive ? 'On' : 'Off';
+      });
+    }
+    initSplitTile('bluetoothTile', 'bluetoothToggleBtn');
+    initSplitTile('quickShareTile', 'quickShareToggleBtn');
+
+    /* Shared-Element Morph Modal Engine */
+    const rootParent = document.getElementById('rootParent');
+    const triggerTile = document.getElementById('bluetoothTile');
+    const triggerTextArea = document.getElementById('bluetoothOpenModal');
+    const morphWrapper = document.getElementById('morphWrapper');
+    const backdrop = document.getElementById('modalBackdrop');
+    const cancelBtn = document.getElementById('modalCancelBtn');
+    const doneBtn = document.getElementById('modalDoneBtn');
+
+    let originRect = null;
+
+    function openModal() {
+      const parentRect = rootParent.getBoundingClientRect();
+      const tileRect = triggerTile.getBoundingClientRect();
+
+      originRect = {
+        top: tileRect.top - parentRect.top,
+        left: tileRect.left - parentRect.left,
+        width: tileRect.width,
+        height: tileRect.height,
+        radius: window.getComputedStyle(triggerTile).borderRadius
+      };
+
+      morphWrapper.style.transition = 'none';
+      morphWrapper.style.top = `${originRect.top}px`;
+      morphWrapper.style.left = `${originRect.left}px`;
+      morphWrapper.style.width = `${originRect.width}px`;
+      morphWrapper.style.height = `${originRect.height}px`;
+      morphWrapper.style.borderRadius = originRect.radius;
+      morphWrapper.classList.add('active');
+
+      morphWrapper.offsetHeight;
+
+      morphWrapper.style.transition = '';
+      backdrop.classList.add('open');
+
+      requestAnimationFrame(() => {
+        morphWrapper.style.top = '0px';
+        morphWrapper.style.left = '0px';
+        morphWrapper.style.width = `${parentRect.width}px`;
+        morphWrapper.style.height = `${parentRect.height}px`;
+        morphWrapper.style.borderRadius = '44px';
+        morphWrapper.classList.add('expanded');
+      });
+    }
+
+    function closeModal() {
+      if (!originRect) return;
+
+      backdrop.classList.remove('open');
+      morphWrapper.classList.remove('expanded');
+
+      morphWrapper.style.top = `${originRect.top}px`;
+      morphWrapper.style.left = `${originRect.left}px`;
+      morphWrapper.style.width = `${originRect.width}px`;
+      morphWrapper.style.height = `${originRect.height}px`;
+      morphWrapper.style.borderRadius = originRect.radius;
+
+      setTimeout(() => {
+        morphWrapper.classList.remove('active');
+      }, 380);
+    }
+
+    triggerTextArea.addEventListener('click', openModal);
+    backdrop.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    doneBtn.addEventListener('click', closeModal);
+
+    /* Slider Engine */
+    function createSmoothSlider(wrapperId, initialVal, onValueChange) {
+      const wrap = document.getElementById(wrapperId);
+      const filled = wrap.querySelector('.slider-filled');
+      let isDragging = false;
+      let val = initialVal;
+
+      function render(ratio) {
+        val = Math.max(0, Math.min(1, ratio));
+        const usableWidth = wrap.offsetWidth - 8;
+        const widthPx = Math.round(usableWidth * val);
+
+        filled.style.width = `${widthPx}px`;
+
+        if (val === 0) {
+          wrap.setAttribute('data-pos', '0');
+        } else if (val === 1) {
+          wrap.setAttribute('data-pos', '1');
+        } else {
+          wrap.removeAttribute('data-pos');
+        }
+
+        if (onValueChange) onValueChange(val);
+      }
+
+      function handlePointer(e) {
+        const rect = wrap.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const relativeX = clientX - rect.left;
+        render(relativeX / rect.width);
+      }
+
+      wrap.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        wrap.classList.add('active');
+        wrap.setPointerCapture(e.pointerId);
+        handlePointer(e);
+      });
+
+      wrap.addEventListener('pointermove', (e) => {
+        if (isDragging) handlePointer(e);
+      });
+
+      const endPointer = (e) => {
+        if (isDragging) {
+          isDragging = false;
+          wrap.classList.remove('active');
+          try { wrap.releasePointerCapture(e.pointerId); } catch (_) {}
+        }
+      };
+
+      wrap.addEventListener('pointerup', endPointer);
+      wrap.addEventListener('pointercancel', endPointer);
+
+      window.addEventListener('resize', () => render(val));
+      window.addEventListener('orientationchange', () => setTimeout(() => render(val), 50));
+      // Initial render can run before layout/fonts are ready (esp. on refresh),
+      // so re-render once layout settles.
+      render(val);
+      requestAnimationFrame(() => render(val));
+
+      return {
+        setVal: (newVal) => render(newVal),
+        getVal: () => val,
+        rerender: () => render(val)
+      };
+    }
+
+    const brightnessSlider = createSmoothSlider('brightnessSlider', 0.66, (val) => {
+      const icon = document.getElementById('brightnessIcon');
+      if (val < 0.3) {
+        icon.textContent = 'brightness_low';
+      } else if (val < 0.7) {
+        icon.textContent = 'brightness_6';
+      } else {
+        icon.textContent = 'brightness_high';
+      }
+    });
+
+    const volumeSlider = createSmoothSlider('volumeSlider', 0.45, (val) => {
+      const filledIcon = document.getElementById('volumeIconFilled');
+      const remainingIcon = document.getElementById('volumeIconRemaining');
+
+      if (val === 0) {
+        filledIcon.style.display = 'none';
+        remainingIcon.style.display = 'inline-block';
+      } else {
+        filledIcon.style.display = 'inline-block';
+        remainingIcon.style.display = 'none';
+        filledIcon.textContent = val < 0.5 ? 'volume_down' : 'volume_up';
+      }
+    });
+
+    // Re-render sliders once everything (fonts, layout, restore) settles.
+    // This makes refresh identical to fresh open.
+    function rerenderAllSliders() {
+      try { brightnessSlider.rerender(); } catch (_) {}
+      try { volumeSlider.rerender(); } catch (_) {}
+    }
+    window.addEventListener('load', rerenderAllSliders);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => rerenderAllSliders()).catch(() => {});
+    }
+    setTimeout(rerenderAllSliders, 100);
+
+    /* Calendar Widget — nested cleaner, Mon-first, Aug 2026 default to match ref */
+    (function initCalendar() {
+      const grid = document.getElementById('calGrid');
+      const title = document.getElementById('calTitle');
+      if (!grid) return;
+      let viewY = 2026, viewM = 7; // 0-indexed: 7 = August
+      let selectedKey = '2026-7-19';
+
+      const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+      function render() {
+        title.textContent = `${monthNames[viewM]} ${viewY}`;
+        grid.innerHTML = '';
+        // Monday-first offset: JS getDay() 0=Sun -> (day+6)%7
+        const first = new Date(viewY, viewM, 1);
+        const offset = (first.getDay() + 6) % 7;
+        const daysInMonth = new Date(viewY, viewM + 1, 0).getDate();
+        const daysInPrev = new Date(viewY, viewM, 0).getDate();
+
+        const today = new Date();
+        const todayKey = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+
+        for (let i = 0; i < 42; i++) {
+          const btn = document.createElement('button');
+          btn.className = 'cal-day';
+          let d, m = viewM, y = viewY, other = false;
+
+          if (i < offset) {
+            d = daysInPrev - offset + 1 + i;
+            m = viewM - 1; other = true;
+            if (m < 0) { m = 11; y--; }
+          } else if (i >= offset + daysInMonth) {
+            d = i - (offset + daysInMonth) + 1;
+            m = viewM + 1; other = true;
+            if (m > 11) { m = 0; y++; }
+          } else {
+            d = i - offset + 1;
+          }
+
+          const key = `${y}-${m}-${d}`;
+          btn.textContent = d;
+          if (other) btn.classList.add('other');
+          if (key === selectedKey) btn.classList.add('selected');
+          if (key === todayKey) btn.classList.add('today');
+
+          btn.addEventListener('click', () => {
+            selectedKey = key;
+            // if tapped other-month day, navigate
+            if (other) {
+              viewY = y; viewM = m;
+            }
+            render();
+          });
+          grid.appendChild(btn);
+        }
+        // Trim to 6 or 5 rows automatically: hide last row if all other-month
+        const cells = [...grid.children];
+        const lastRow = cells.slice(35);
+        const needs6 = lastRow.some(c => !c.classList.contains('other'));
+        lastRow.forEach(c => c.style.display = needs6 ? '' : 'none');
+      }
+
+      document.getElementById('calPrev').addEventListener('click', () => {
+        viewM--; if (viewM < 0) { viewM = 11; viewY--; } render();
+      });
+      document.getElementById('calNext').addEventListener('click', () => {
+        viewM++; if (viewM > 11) { viewM = 0; viewY++; } render();
+      });
+
+      // shell date in header
+      const sd = document.getElementById('shellDate');
+      if (sd) {
+        try {
+          sd.textContent = new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+        } catch (_) {}
+      }
+
+      render();
+    })();
+  </script>
+</body>
+</html>

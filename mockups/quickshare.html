@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Share dialog — isolated mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&family=Google+Symbols:opsz,wght,FILL,GRAD@24,400,0..1,0&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/shell.css">
+  <style>
+    body {
+      background-color: #0b1510;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 16px;
+      font-family: 'Google Sans Flex', sans-serif;
+      color: #e1e9e3;
+    }
+    .page { width: 416px; max-width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    .back { font-size: 13px; color: #9ab3a1; text-decoration: none; }
+    .back:hover { color: #e1e9e3; }
+    .hint { font-size: 12px; color: #9ab3a1; text-align: center; }
+    .icon {
+      font-family: 'Google Symbols'; font-size: 24px; line-height: 1;
+      display: inline-block; pointer-events: none;
+    }
+    .bt-standalone {
+      background-color: var(--qs-dialog-surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
+      border-radius: 44px;
+      display: flex;
+      overflow: hidden;
+    }
+    .bt-standalone .modal-content-container { opacity: 1; transform: none; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="back" href="../index.html">← all mockups</a>
+
+    <div class="bt-standalone">
+      <div class="modal-content-container">
+        <div class="modal-header-row">
+          <span class="modal-title">Quick Share</span>
+          <button class="modal-chip-btn">
+            <span class="icon" style="font-size: 18px;">smartphone</span>
+            <span>Mvk's device</span>
+          </button>
+        </div>
+
+        <div class="bt-detail-scroll">
+          <div data-qs-incoming></div>
+          <div data-qs-selected></div>
+          <div>
+            <div class="bt-group-label">Who can share with you</div>
+            <div class="dialog-rows-list" style="margin-top:6px">
+              <div class="dialog-row-item active" data-qs-vis>
+                <div class="dialog-icon-badge"><span class="icon">group</span></div>
+                <div class="dialog-row-texts">
+                  <span class="dialog-row-title">Contacts only</span>
+                  <span class="dialog-row-subtitle">People in your contacts</span>
+                </div>
+                <span class="qs-check icon">check_circle</span>
+              </div>
+              <div class="dialog-row-item" data-qs-vis>
+                <div class="dialog-icon-badge"><span class="icon">public</span></div>
+                <div class="dialog-row-texts">
+                  <span class="dialog-row-title">Everyone</span>
+                  <span class="dialog-row-subtitle">Anyone nearby for 10 minutes</span>
+                </div>
+                <span class="qs-check icon">check_circle</span>
+              </div>
+              <div class="dialog-row-item" data-qs-vis>
+                <div class="dialog-icon-badge"><span class="icon">devices</span></div>
+                <div class="dialog-row-texts">
+                  <span class="dialog-row-title">Your devices</span>
+                  <span class="dialog-row-subtitle">Only devices signed in as you</span>
+                </div>
+                <span class="qs-check icon">check_circle</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="bt-group-label">Nearby devices</div>
+            <div class="dialog-rows-list" style="margin-top:6px">
+              <div class="dialog-row-item" data-qs-device>
+                <div class="dialog-icon-badge"><span class="icon">tv</span></div>
+                <div class="dialog-row-texts">
+                  <span class="dialog-row-title">Living Room TV</span>
+                  <span class="dialog-row-subtitle" data-qs-sub>Available</span>
+                </div>
+              </div>
+              <div class="dialog-row-item" data-qs-device>
+                <div class="dialog-icon-badge"><span class="icon">laptop</span></div>
+                <div class="dialog-row-texts">
+                  <span class="dialog-row-title">Your Laptop</span>
+                  <span class="dialog-row-subtitle" data-qs-sub>Available</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div data-qs-simulate></div>
+        </div>
+
+        <div class="modal-actions-footer">
+          <button class="action-text-btn neutral">Cancel</button>
+          <button class="action-text-btn">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="hint">Pick files, tap a device to send it. Accept or decline the incoming request. Same sheet as in QS tablet.</p>
+  </div>
+
+  <script src="../js/quickshare.js"></script>
+  <script>
+    // standalone page: Done/Cancel settle any in-flight transfer (never leaves the page)
+    document.querySelectorAll('.modal-actions-footer .action-text-btn').forEach((b) =>
+      b.addEventListener('click', () => { if (document._qsSettle) document._qsSettle(); }));
+  </script>
+</body>
+</html>

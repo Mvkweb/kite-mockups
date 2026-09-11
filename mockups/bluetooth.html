@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bluetooth dialog — isolated mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&family=Google+Symbols:opsz,wght,FILL,GRAD@24,400,0..1,0&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/shell.css">
+  <style>
+    body {
+      background-color: #0b1510;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 16px;
+      font-family: 'Google Sans Flex', sans-serif;
+      color: #e1e9e3;
+    }
+    .page { width: 416px; max-width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    .back { font-size: 13px; color: #9ab3a1; text-decoration: none; }
+    .back:hover { color: #e1e9e3; }
+    .hint { font-size: 12px; color: #9ab3a1; text-align: center; }
+    .icon {
+      font-family: 'Google Symbols'; font-size: 24px; line-height: 1;
+      display: inline-block; pointer-events: none;
+    }
+    /* standalone card = expanded modal look, no morph wrapper needed */
+    .bt-standalone {
+      background-color: var(--qs-dialog-surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
+      border-radius: 44px;
+      display: flex;
+      overflow: hidden;
+    }
+    .bt-standalone .modal-content-container { opacity: 1; transform: none; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="back" href="../index.html">← all mockups</a>
+
+    <div class="bt-standalone">
+      <div class="modal-content-container">
+        <div class="modal-header-row">
+          <span class="modal-title">Bluetooth</span>
+          <button class="modal-chip-btn">
+            <span class="icon" style="font-size: 18px;">add</span>
+            <span>Pair</span>
+          </button>
+        </div>
+
+        <div class="dialog-rows-list">
+          <div class="dialog-row-item active" data-row-toggle>
+            <div class="dialog-icon-badge">
+              <span class="icon">headphones</span>
+            </div>
+            <div class="dialog-row-texts">
+              <span class="dialog-row-title">WH-1000XM5</span>
+              <span class="dialog-row-subtitle">Connected • 80% battery</span>
+            </div>
+            <button class="dialog-row-settings-btn" title="Device settings" onclick="event.stopPropagation();">
+              <span class="icon">settings</span>
+            </button>
+          </div>
+
+          <div class="dialog-row-item" data-row-toggle>
+            <div class="dialog-icon-badge">
+              <span class="icon">keyboard</span>
+            </div>
+            <div class="dialog-row-texts">
+              <span class="dialog-row-title">Keychron Q1 Pro</span>
+              <span class="dialog-row-subtitle">Saved</span>
+            </div>
+            <button class="dialog-row-settings-btn" title="Device settings" onclick="event.stopPropagation();">
+              <span class="icon">settings</span>
+            </button>
+          </div>
+
+          <div class="dialog-row-item" data-row-toggle>
+            <div class="dialog-icon-badge">
+              <span class="icon">sports_esports</span>
+            </div>
+            <div class="dialog-row-texts">
+              <span class="dialog-row-title">Xbox Wireless Controller</span>
+              <span class="dialog-row-subtitle">Saved</span>
+            </div>
+            <button class="dialog-row-settings-btn" title="Device settings" onclick="event.stopPropagation();">
+              <span class="icon">settings</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-actions-footer">
+          <button class="action-text-btn neutral">Cancel</button>
+          <button class="action-text-btn">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="hint">Same rows as the QS modal. Tap a row to connect — active badge morphs. Badges each have their own blob.</p>
+  </div>
+
+  <script src="../js/tiles.js"></script>
+  <script src="../js/bt-detail.js"></script>
+  <script>
+    // standalone page: Done/Cancel slide back to the device list (never leaves the page)
+    document.querySelectorAll('.modal-actions-footer .action-text-btn').forEach((b) =>
+      b.addEventListener('click', () => {
+        const c = document.querySelector('.modal-content-container');
+        if (c && c._btCloseDetail) c._btCloseDetail();
+      }));
+  </script>
+</body>
+</html>

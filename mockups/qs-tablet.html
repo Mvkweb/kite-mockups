@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&family=Google+Symbols:opsz,wght,FILL,GRAD@24,400,0..1,0&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/shell.css">
+  <link rel="stylesheet" href="../css/widgets.css">
+  <title>QS Tablet — Control Center mockup</title>
+  <style>
+    .mockup-back {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 100;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--qs-on-inactive, #e1e9e3);
+      text-decoration: none;
+      background: rgba(20, 40, 31, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 8px 14px;
+      border-radius: 999px;
+      backdrop-filter: blur(8px);
+      transition: background 0.2s ease;
+    }
+    .mockup-back:hover { background: rgba(35, 71, 59, 0.95); }
+  </style>
+</head>
+<body>
+  <a class="mockup-back" href="../index.html">← All mockups</a>
+<!-- Main Quick Settings Panel - tablet 2-pane -->
+  <div class="qs-panel" id="rootParent">
+    
+    <!-- Shell Header: user + date + battery + actions -->
+    <div class="qs-shell-header">
+      <div class="user-chip">
+        <div class="avatar">M</div>
+        <div class="user-texts">
+          <span class="user-name">Mvk</span>
+          <span class="user-date" id="shellDate">Fri, Sep 11</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="battery-pill"><span class="icon">battery_full</span><span>82%</span></div>
+        <div class="qs-top-group">
+          <button class="qs-icon-btn" title="Edit"><span class="icon">edit</span></button>
+          <button class="qs-icon-btn" title="Settings"><span class="icon">settings</span></button>
+          <button class="qs-icon-btn" title="Power"><span class="icon">power_settings_new</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="qs-body">
+      <div class="qs-main">
+    <!-- Sliders Stack -->
+    <div class="sliders-stack">
+      <div class="slider-track-wrap" id="brightnessSlider">
+        <div class="slider-rail">
+          <div class="slider-filled">
+            <span class="icon" id="brightnessIcon">brightness_6</span>
+          </div>
+          <div class="slider-handle"></div>
+          <div class="slider-remaining">
+            <div class="slider-stop-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slider-track-wrap" id="volumeSlider">
+        <div class="slider-rail">
+          <div class="slider-filled">
+            <span class="icon" id="volumeIconFilled">volume_up</span>
+          </div>
+          <div class="slider-handle"></div>
+          <div class="slider-remaining">
+            <span class="icon" id="volumeIconRemaining" style="display: none;">volume_off</span>
+            <div class="slider-stop-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Settings Matrix -->
+    <div class="qs-grid">
+      <!-- Row 1: Merged Internet Tile + Split Bluetooth Tile -->
+      <button class="matrix-tile wide" data-toggle>
+        <span class="icon">wifi</span>
+        <div class="tile-text-block">
+          <span class="tile-title">Internet</span>
+          <span class="tile-subtitle">Off</span>
+        </div>
+      </button>
+
+      <!-- Bluetooth Split Tile -->
+      <div class="split-tile active" id="bluetoothTile">
+        <button class="split-toggle-btn" id="bluetoothToggleBtn" title="Toggle Bluetooth">
+          <span class="icon">bluetooth</span>
+        </button>
+        <div class="split-text-area" id="bluetoothOpenModal">
+          <span class="tile-title" style="font-size: 14px; font-weight: 600;">Bluetooth</span>
+          <span class="tile-subtitle" style="font-size: 11px; opacity: 0.8;">On</span>
+        </div>
+      </div>
+
+      <!-- Row 2: Device Control + Split Quick Share Tile -->
+      <button class="matrix-tile wide" data-toggle>
+        <span class="icon">pets</span>
+        <div class="tile-text-block">
+          <span class="tile-title">Device Control</span>
+          <span class="tile-subtitle">Off</span>
+        </div>
+      </button>
+
+      <!-- Quick Share Split Tile -->
+      <div class="split-tile" id="quickShareTile">
+        <button class="split-toggle-btn" id="quickShareToggleBtn" title="Toggle Quick Share">
+          <span class="icon">nearby_share</span>
+        </button>
+        <div class="split-text-area" id="quickShareOpenModal">
+          <span class="tile-title" style="font-size: 14px; font-weight: 600;">Quick Share</span>
+          <span class="tile-subtitle" style="font-size: 11px; opacity: 0.8;">Off</span>
+        </div>
+      </div>
+
+      <!-- Row 3: 4 Small 1x1 Tiles -->
+      <button class="matrix-tile small" data-toggle>
+        <span class="icon">flashlight_on</span>
+      </button>
+      <button class="matrix-tile small active" data-toggle>
+        <span class="icon">airplanemode_active</span>
+      </button>
+      <button class="matrix-tile small" data-toggle>
+        <span class="icon">screen_rotation</span>
+      </button>
+      <button class="matrix-tile small" data-toggle>
+        <span class="icon">dark_mode</span>
+      </button>
+    </div>
+
+    <!-- Bottom Row (Cast, Alarm, Home, Camera) -->
+    <div class="qs-grid">
+      <button class="dock-tile" data-toggle><span class="icon">cast</span></button>
+      <button class="dock-tile" data-toggle><span class="icon">alarm</span></button>
+      <button class="dock-tile" data-toggle><span class="icon">home</span></button>
+      <button class="dock-tile" data-toggle><span class="icon">camera_indoor</span></button>
+    </div>
+      </div><!-- /qs-main -->
+
+      <div class="qs-widgets">
+        <!-- Calendar Widget — nested cleaner, inspired by ref -->
+        <div class="widget" id="calendarWidget">
+          <div class="widget-header">
+            <span class="widget-title" id="calTitle">August 2026</span>
+            <div class="widget-nav">
+              <button class="cal-nav-btn" id="calPrev" title="Previous month"><span class="icon">chevron_left</span></button>
+              <button class="cal-nav-btn" id="calNext" title="Next month"><span class="icon">chevron_right</span></button>
+            </div>
+          </div>
+
+          <div class="cal-inner">
+            <div class="cal-weekdays">
+              <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+          </div>
+
+          <div class="cal-agenda">
+            <button class="agenda-row">
+              <span class="agenda-dot" style="background:#bcf3cb"></span>
+              <span class="agenda-texts">
+                <span class="agenda-title">Design review</span>
+                <span class="agenda-time">Today • 10:00</span>
+              </span>
+              <span class="icon" style="font-size:18px;opacity:.6">chevron_right</span>
+            </button>
+            <button class="agenda-row">
+              <span class="agenda-dot" style="background:#a0e6d6"></span>
+              <span class="agenda-texts">
+                <span class="agenda-title">Shell polish pass</span>
+                <span class="agenda-time">Wed • 14:30</span>
+              </span>
+              <span class="icon" style="font-size:18px;opacity:.6">chevron_right</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Media mini widget (individual, organized) -->
+        <div class="widget widget-mini">
+          <div class="mini-icon"><span class="icon">music_note</span></div>
+          <div class="mini-texts">
+            <div class="mini-title">Midnight Drive</div>
+            <div class="mini-sub">Neon Coast • Paused</div>
+          </div>
+          <button class="qs-icon-btn"><span class="icon">play_arrow</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Backdrop Dimmer -->
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
+    <!-- Bottom Sheet (Bluetooth) -->
+    <div class="morph-wrapper" id="morphWrapper">
+      <div class="sheet-grab" id="sheetHandle"><div class="sheet-handle"></div></div>
+      <div class="modal-content-container">
+        <!-- Header -->
+        <div class="modal-header-row">
+          <span class="modal-title">Bluetooth</span>
+          <button class="modal-chip-btn">
+            <span class="icon" style="font-size: 18px;">add</span>
+            <span>Pair</span>
+          </button>
+        </div>
+
+        <!-- Segmented Bluetooth Device List with Settings Buttons -->
+        <div class="dialog-rows-list">
+          <!-- Item 1: Active Connected Headphones -->
+          <div class="dialog-row-item active" data-row-toggle>
+            <div class="dialog-icon-badge">
+              <span class="icon">headphones</span>
+            </div>
+            <div class="dialog-row-texts">
+              <span class="dialog-row-title">WH-1000XM5</span>
+              <span class="dialog-row-subtitle">Connected • 80% battery</span>
+            </div>
+            <button class="dialog-row-settings-btn" title="Device settings" onclick="event.stopPropagation();">
+              <span class="icon">settings</span>
+            </button>
+          </div>
+
+          <!-- Item 2: Saved Keyboard -->
+          <div class="dialog-row-item" data-row-toggle>
+            <div class="dialog-icon-badge">
+              <span class="icon">keyboard</span>
+            </div>
+            <div class="dialog-row-texts">
+              <span class="dialog-row-title">Keychron Q1 Pro</span>
+              <span class="dialog-row-subtitle">Saved</span>
+            </div>
+            <button class="dialog-row-settings-btn" title="Device settings" onclick="event.stopPropagation();">
+              <span class="icon">settings</span>
+            </button>
+          </div>
+
+          <!-- Item 3: Saved Controller -->
+          <div class="dialog-row-item" data-row-toggle>
+            <div class="dialog-icon-badge">
+              <span class="icon">sports_esports</span>
+            </div>
+            <div class="dialog-row-texts">
+              <span class="dialog-row-title">Xbox Wireless Controller</span>
+              <span class="dialog-row-subtitle">Saved</span>
+            </div>
+            <button class="dialog-row-settings-btn" title="Device settings" onclick="event.stopPropagation();">
+              <span class="icon">settings</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Actions Footer -->
+        <div class="modal-actions-footer">
+          <button class="action-text-btn neutral" id="modalCancelBtn" data-sheet-cancel>Cancel</button>
+          <button class="action-text-btn" id="modalDoneBtn" data-sheet-done>Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Sheet (Quick Share) -->
+    <div class="morph-wrapper" id="quickShareWrapper">
+      <div class="sheet-grab" id="qsHandle"><div class="sheet-handle"></div></div>
+      <div class="modal-content-container">
+        <div class="modal-header-row">
+          <span class="modal-title">Quick Share</span>
+          <button class="modal-chip-btn">
+            <span class="icon" style="font-size: 18px;">smartphone</span>
+            <span>Mvk's device</span>
+          </button>
+        </div>
+
+        <div class="bt-detail-scroll">
+          <div data-qs-incoming></div>
+          <div data-qs-selected></div>
+          <div>
+            <div class="bt-group-label">Who can share with you</div>
+            <div class="dialog-rows-list" style="margin-top:6px">
+              <div class="dialog-row-item active" data-qs-vis>
+                <div class="dialog-icon-badge"><span class="icon">group</span></div>
+                <div class="dialog-row-texts">
+                  <span class="dialog-row-title">Contacts only</span>
+                  <span class="dialog-row-subtitle">People in your contacts</span>
+                </div>
+                <span class="qs-check icon">check_circle</span>
+              </div>
+              <div class="dialog-row-item" data-qs-vis>
+                <div class="dialog-icon-badge"><span class="icon">public</span></div>
+                <div class="dialog-row-texts">
+                  <span class="dialog-row-title">Everyone</span>
+                  <span class="dialog-row-subtitle">Anyone nearby for 10 minutes</span>
+                </div>
+                <span class="qs-check icon">check_circle</span>
+              </div>
+              <div class="dialog-row-item" data-qs-vis>
+                <div class="dialog-icon-badge"><span class="icon">devices</span></div>
+                <div class="dialog-row-texts">
+                  <span class="dialog-row-title">Your devices</span>
+                  <span class="dialog-row-subtitle">Only devices signed in as you</span>
+                </div>
+                <span class="qs-check icon">check_circle</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="bt-group-label">Nearby devices</div>
+            <div class="dialog-rows-list" style="margin-top:6px">
+              <div class="dialog-row-item" data-qs-device>
+                <div class="dialog-icon-badge"><span class="icon">tv</span></div>
+                <div class="dialog-row-texts">
+                  <span class="dialog-row-title">Living Room TV</span>
+                  <span class="dialog-row-subtitle" data-qs-sub>Available</span>
+                </div>
+              </div>
+              <div class="dialog-row-item" data-qs-device>
+                <div class="dialog-icon-badge"><span class="icon">laptop</span></div>
+                <div class="dialog-row-texts">
+                  <span class="dialog-row-title">Your Laptop</span>
+                  <span class="dialog-row-subtitle" data-qs-sub>Available</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div data-qs-simulate></div>
+        </div>
+
+        <div class="modal-actions-footer">
+          <button class="action-text-btn neutral" data-sheet-cancel>Cancel</button>
+          <button class="action-text-btn" data-sheet-done>Done</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script src="../js/tiles.js"></script>
+  <script src="../js/modal.js"></script>
+  <script src="../js/sliders.js"></script>
+  <script src="../js/calendar.js"></script>
+  <script src="../js/bt-detail.js"></script>
+  <script src="../js/quickshare.js"></script>
+</body>
+</html>

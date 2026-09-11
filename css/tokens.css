@@ -1,0 +1,35 @@
+/* kite-shell design tokens (M3E dark green) */
+:root {
+      --qs-bg: #14281f;
+      --qs-tile-inactive: #1c382b;
+      --qs-tile-inactive-dark: #102219;
+      --qs-tile-active: #bcf3cb;
+      --qs-on-active: #093717;
+      --qs-on-inactive: #e1e9e3;
+      --qs-on-inactive-dim: #9ab3a1;
+
+      /* Dialog M3 Tokens */
+      --qs-dialog-surface: #13241c;
+      --qs-row-active-bg: #23473b;
+      --qs-row-inactive-bg: #182e25;
+      --qs-badge-active-bg: #a0e6d6;
+      --qs-badge-active-fg: #0a372e;
+      --qs-badge-inactive-bg: #294438;
+      --qs-badge-inactive-fg: #cde6dc;
+
+      /* Widget tokens (nested cleaner) */
+      --qs-widget-bg: #1c382b;
+      --qs-widget-inner: #0f2018;
+      --qs-widget-dim: #8aa79a;
+
+      --radius-track-outer: 24px;
+      --radius-track-inner: 4px;
+      --radius-full: 9999px;
+      --radius-squircle: 20px;
+
+      /* Segmented List Group Shape Tokens */
+      --radius-group-outer: 28px;
+      --radius-group-inner: 4px;
+
+      --font-family: 'Google Sans Flex', -apple-system, BlinkMacSystemFont, sans-serif;
+    }

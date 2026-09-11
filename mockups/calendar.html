@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar Widget — isolated mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&family=Google+Symbols:opsz,wght,FILL,GRAD@24,400,0..1,0&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/shell.css">
+  <link rel="stylesheet" href="../css/widgets.css">
+  <style>
+    body {
+      background-color: #0b1510;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 16px;
+      font-family: 'Google Sans Flex', sans-serif;
+      color: #e1e9e3;
+    }
+    .page { width: 600px; max-width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    #calendarWidget { max-width: 300px; width: 100%; margin-inline: auto; }
+    .back { font-size: 13px; color: #9ab3a1; text-decoration: none; }
+    .back:hover { color: #e1e9e3; }
+    .hint { font-size: 12px; color: #9ab3a1; text-align: center; }
+    .icon {
+      font-family: 'Google Symbols'; font-size: 24px; line-height: 1;
+      display: inline-block; pointer-events: none;
+    }
+    .vlabel {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--qs-on-inactive-dim); margin: 22px 4px 0;
+    }
+
+    /* ---- split day-focus variant ---- */
+    .sp { display: grid; grid-template-columns: 172px 1fr; gap: 12px; }
+    .sp-day {
+      background: rgba(0, 0, 0, 0.25); border-radius: 20px; padding: 16px 14px;
+      display: flex; flex-direction: column; gap: 12px; min-width: 0;
+    }
+    .sp-bigrow { display: flex; gap: 10px; align-items: flex-start; }
+    .sp-big { font-size: 44px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+    .sp-bigside { display: flex; flex-direction: column; gap: 2px; padding-top: 5px; min-width: 0; }
+    .sp-weekday { font-size: 14px; font-weight: 600; white-space: nowrap; }
+    .sp-meta { font-size: 11px; color: var(--qs-on-inactive-dim); white-space: nowrap; }
+    .sp-events { flex: 1; display: flex; flex-direction: column; gap: 6px; min-height: 96px; max-height: 100px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(225, 233, 227, 0.25) transparent; padding-right: 2px; }
+    .sp-events::-webkit-scrollbar { width: 8px; }
+    .sp-events::-webkit-scrollbar-track { background: transparent; }
+    .sp-events::-webkit-scrollbar-thumb { background: rgba(225, 233, 227, 0.22); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+    .sp-ev { display: flex; gap: 9px; align-items: center; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 7px 10px; }
+    .sp-rail { width: 3px; align-self: stretch; border-radius: 99px; flex-shrink: 0; }
+    .sp-ev-title { font-size: 12.5px; font-weight: 600; }
+    .sp-ev-time { font-size: 11px; color: var(--qs-on-inactive-dim); }
+    .sp-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--qs-on-inactive-dim); font-size: 12px; text-align: center; min-height: 96px; }
+    .sp-empty .icon { font-size: 26px; opacity: 0.5; }
+    .sp-add {
+      border: none; border-radius: 14px; background: rgba(255, 255, 255, 0.07); color: inherit;
+      font-family: inherit; font-size: 13px; font-weight: 600; padding: 10px;
+      display: flex; gap: 6px; align-items: center; justify-content: center; cursor: pointer;
+    }
+    .sp-add:hover { background: rgba(255, 255, 255, 0.12); }
+    .sp-add .icon { font-size: 18px; }
+    .sp-cal { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+    .sp-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .sp-today { width: auto; height: 28px; padding: 0 12px; font-family: inherit; font-size: 12px; font-weight: 600; }
+    .sp-today .icon { font-size: 15px; }
+    .sp-week, .sp-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+    .sp-week { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--qs-on-inactive-dim); text-align: center; }
+    .sp-grid { gap: 3px; }
+    .sp-d {
+      border: none; background: transparent; color: inherit; font-family: inherit;
+      font-size: 12.5px; font-weight: 500; border-radius: 12px; padding: 5px 2px 6px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; min-width: 0;
+    }
+    .sp-d:hover { background: rgba(255, 255, 255, 0.08); }
+    .sp-d.other { opacity: 0.3; }
+    .sp-d.sel { background: rgba(255, 255, 255, 0.14); font-weight: 700; }
+    .sp-d.today:not(.sel) { box-shadow: inset 0 0 0 1.5px var(--qs-tile-active); }
+    .sp-bars { display: flex; gap: 2px; height: 3px; }
+    .sp-bars i { width: 8px; height: 2px; border-radius: 99px; display: block; }
+
+    /* ---- dark split + task pill ---- */
+    .sp.dark { background: #101d16; }
+    .sp.dark .sp-day { background: rgba(0, 0, 0, 0.45); }
+    .task-pill {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 999px; padding: 7px 8px 7px 14px; font-size: 12px;
+    }
+    .task-due { color: var(--qs-on-inactive-dim); font-weight: 600; white-space: nowrap; }
+    .task-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .task-pill button {
+      width: 26px; height: 26px; border-radius: 50%; border: none; background: transparent;
+      color: var(--qs-on-inactive-dim); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+    }
+    .task-pill button:hover { background: rgba(255, 255, 255, 0.08); color: var(--qs-on-inactive); }
+    .task-pill button .icon { font-size: 16px; }
+    /* docked: pill reads as the card's header band, not an island */
+    .task-pill.docked {
+      border-radius: 18px 18px 8px 8px;
+      margin-bottom: 2px;
+      background: var(--qs-widget-bg);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: none;
+      transition: border-radius 0.25s ease;
+    }
+    .task-pill.docked:not(.gone) + .sp {
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+    .task-pill.gone { display: none; }
+
+    /* ---- week agenda variant ---- */
+    .wk-strip {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+      background: var(--qs-widget-inner); border-radius: 20px; padding: 10px;
+    }
+    .wk-d {
+      border: none; background: transparent; color: inherit; font-family: inherit;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 8px 2px; border-radius: 16px; cursor: pointer;
+    }
+    .wk-d small { font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--qs-on-inactive-dim); }
+    .wk-d b { font-size: 14px; }
+    .wk-d:hover { background: rgba(255, 255, 255, 0.07); }
+    .wk-d.other small { opacity: 0.5; }
+    .wk-d.sel { background: var(--qs-tile-active); color: var(--qs-on-active); border-radius: 44% 56% 55% 45% / 48% 42% 58% 52%; }
+    .wk-d.sel small { color: var(--qs-on-active); opacity: 0.75; }
+    .wk-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+    .wk-ev { display: flex; gap: 10px; align-items: center; background: rgba(0, 0, 0, 0.22); border-radius: 16px; padding: 9px 12px; }
+    .wk-time { font-size: 11px; font-weight: 700; color: var(--qs-on-inactive-dim); width: 38px; flex-shrink: 0; }
+    .wk-rail { width: 3px; align-self: stretch; border-radius: 99px; flex-shrink: 0; }
+    .wk-ev-title { font-size: 13px; font-weight: 600; }
+    .wk-ev-sub { font-size: 11px; color: var(--qs-on-inactive-dim); }
+
+    @media (max-width: 640px) {
+      .sp { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="back" href="../index.html">← all mockups</a>
+
+    <div class="widget" id="calendarWidget">
+      <div class="widget-header">
+        <span class="widget-title" id="calTitle">August 2026</span>
+        <div class="widget-nav">
+          <button class="cal-nav-btn" id="calPrev" title="Previous month"><span class="icon">chevron_left</span></button>
+          <button class="cal-nav-btn" id="calNext" title="Next month"><span class="icon">chevron_right</span></button>
+        </div>
+      </div>
+      <div class="cal-inner">
+        <div class="cal-weekdays">
+          <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+      <div class="cal-agenda">
+        <button class="agenda-row">
+          <span class="agenda-dot" style="background:#bcf3cb"></span>
+          <span class="agenda-texts">
+            <span class="agenda-title">Design review</span>
+            <span class="agenda-time">Today • 10:00</span>
+          </span>
+          <span class="icon" style="font-size:18px;opacity:.6">chevron_right</span>
+        </button>
+        <button class="agenda-row">
+          <span class="agenda-dot" style="background:#a0e6d6"></span>
+          <span class="agenda-texts">
+            <span class="agenda-title">Shell polish pass</span>
+            <span class="agenda-time">Wed • 14:30</span>
+          </span>
+          <span class="icon" style="font-size:18px;opacity:.6">chevron_right</span>
+        </button>
+      </div>
+    </div>
+
+    <p class="hint">M3E blobs: every date has its own shape, selected day morphs. Prev/next + day select work.</p>
+
+    <p class="vlabel">Day focus — event bars + add event</p>
+    <div class="widget sp" id="sp2">
+      <div class="sp-day">
+        <div class="sp-bigrow">
+          <span class="sp-big" id="sp2Big">10</span>
+          <div class="sp-bigside">
+            <span class="sp-weekday" id="sp2Wd">Thursday</span>
+            <span class="sp-meta" id="sp2Meta">Sep 2026</span>
+          </div>
+        </div>
+        <div class="sp-events" id="sp2Events"></div>
+        <button class="sp-add" id="sp2Add"><span class="icon">add</span>Add Event</button>
+      </div>
+      <div class="sp-cal">
+        <div class="sp-head">
+          <span class="widget-title" id="sp2Title">September 2026</span>
+          <div class="widget-nav">
+            <button class="cal-nav-btn sp-today" id="sp2Today"><span class="icon">calendar_today</span>Today</button>
+            <button class="cal-nav-btn" id="sp2Prev" title="Previous month"><span class="icon">chevron_left</span></button>
+            <button class="cal-nav-btn" id="sp2Next" title="Next month"><span class="icon">chevron_right</span></button>
+          </div>
+        </div>
+        <div class="sp-week"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+        <div class="sp-grid" id="sp2Grid"></div>
+      </div>
+    </div>
+
+    <p class="vlabel">Day focus dark — with task pill</p>
+    <div class="task-pill docked" id="sp3Task">
+      <span class="task-due">1d left</span>
+      <span class="task-text">prepare for test • 7 Sep 2026</span>
+      <button id="sp3TaskX" title="Dismiss" aria-label="Dismiss task"><span class="icon">close</span></button>
+      <button id="sp3TaskRe" title="Remind me" aria-label="Remind me"><span class="icon">refresh</span></button>
+      <button id="sp3TaskAdd" title="Add to selected day" aria-label="Add to selected day"><span class="icon">add</span></button>
+    </div>
+    <div class="widget sp dark" id="sp3">
+      <div class="sp-day">
+        <div class="sp-bigrow">
+          <span class="sp-big" id="sp3Big">10</span>
+          <div class="sp-bigside">
+            <span class="sp-weekday" id="sp3Wd">Thursday</span>
+            <span class="sp-meta" id="sp3Meta">Sep 2026</span>
+          </div>
+        </div>
+        <div class="sp-events" id="sp3Events"></div>
+        <button class="sp-add" id="sp3Add"><span class="icon">add</span>Add Event</button>
+      </div>
+      <div class="sp-cal">
+        <div class="sp-head">
+          <span class="widget-title" id="sp3Title">September 2026</span>
+          <div class="widget-nav">
+            <button class="cal-nav-btn sp-today" id="sp3Today"><span class="icon">calendar_today</span>Today</button>
+            <button class="cal-nav-btn" id="sp3Prev" title="Previous month"><span class="icon">chevron_left</span></button>
+            <button class="cal-nav-btn" id="sp3Next" title="Next month"><span class="icon">chevron_right</span></button>
+          </div>
+        </div>
+        <div class="sp-week"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+        <div class="sp-grid" id="sp3Grid"></div>
+      </div>
+    </div>
+
+    <p class="hint">Variants are self-contained in this file. Tap days, Today, Add Event — everything reacts.</p>
+  </div>
+
+  <script src="../js/calendar.js"></script>
+  <script>
+  /* Variants 2-4 engine — local to this file, shared css/js untouched. */
+  (function calendarVariants() {
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const M3 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const WD = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const BARS = ['#cdf3d8', '#8fd0a8', '#5b9a7d', '#3a6552'];
+    const TITLES = ['Design review', 'Dentist', 'Gym session', 'Team standup', 'Release cut', 'Focus block', 'Dinner out', 'Pay rent'];
+    const TIMES = ['09:00', '10:30', '12:00', '14:00', '16:30', '18:00'];
+    const seed = (y, m, d) => (y * 372 + m * 31 + d * 7) % 97;
+
+    function weekNo(d) {
+      const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      t.setUTCDate(t.getUTCDate() - ((t.getUTCDay() + 6) % 7) + 3);
+      const first = new Date(Date.UTC(t.getUTCFullYear(), 0, 4));
+      first.setUTCDate(first.getUTCDate() - ((first.getUTCDay() + 6) % 7) + 3);
+      return 1 + Math.round((t - first) / (7 * 864e5));
+    }
+
+    function seededEvents(y, m, d) {
+      const s = seed(y, m, d);
+      const out = [];
+      const n = s % 3;
+      for (let k = 0; k < n; k++) {
+        out.push({ t: TIMES[(s + k * 17) % 6], title: TITLES[(s + k * 29) % 8], c: BARS[(s + k * 13) % 4] });
+      }
+      return out;
+    }
+
+    const extra = {}; // `${prefix}:${y}-${m}-${d}` -> user-added events
+    const dayEvents = (p, y, m, d) => seededEvents(y, m, d).concat(extra[`${p}:${y}-${m}-${d}`] || []);
+
+    function makeSplit(p, y, m, d) {
+      const $ = (id) => document.getElementById(p + id);
+      if (!$('Grid')) return { addEvent() {} };
+      const S = { y, m, d };
+      const key = () => `${p}:${S.y}-${S.m}-${S.d}`;
+
+      function render() {
+        $('Title').textContent = `${MONTHS[S.m]} ${S.y}`;
+        const grid = $('Grid');
+        grid.innerHTML = '';
+        const offset = (new Date(S.y, S.m, 1).getDay() + 6) % 7;
+        const dim = new Date(S.y, S.m + 1, 0).getDate();
+        const dprev = new Date(S.y, S.m, 0).getDate();
+        const today = new Date();
+        const tkey = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+        for (let i = 0; i < 42; i++) {
+          let dd, mm = S.m, yy = S.y, other = false;
+          if (i < offset) { dd = dprev - offset + 1 + i; mm = S.m - 1; other = true; if (mm < 0) { mm = 11; yy--; } }
+          else if (i >= offset + dim) { dd = i - offset - dim + 1; mm = S.m + 1; other = true; if (mm > 11) { mm = 0; yy++; } }
+          else dd = i - offset + 1;
+          const btn = document.createElement('button');
+          btn.className = 'sp-d';
+          if (other) btn.classList.add('other');
+          if (!other && dd === S.d) btn.classList.add('sel');
+          if (`${yy}-${mm}-${dd}` === tkey) btn.classList.add('today');
+          const bars = dayEvents(p, yy, mm, dd).slice(0, 2)
+            .map((e) => `<i style="background:${e.c}"></i>`).join('');
+          btn.innerHTML = `<span>${dd}</span><span class="sp-bars">${bars}</span>`;
+          btn.addEventListener('click', () => {
+            if (other) { S.y = yy; S.m = mm; }
+            S.d = dd;
+            render();
+          });
+          grid.appendChild(btn);
+        }
+        const cells = [...grid.children];
+        const lastRow = cells.slice(35);
+        const six = lastRow.some((c) => !c.classList.contains('other'));
+        lastRow.forEach((c) => { c.style.display = six ? '' : 'none'; });
+
+        const date = new Date(S.y, S.m, S.d);
+        $('Big').textContent = S.d;
+        $('Wd').textContent = WD[date.getDay()];
+        $('Meta').textContent = `${M3[S.m]} ${S.y} • W${weekNo(date)}`;
+        const evts = dayEvents(p, S.y, S.m, S.d);
+        $('Events').innerHTML = evts.length ? evts.map((e) => `
+          <div class="sp-ev">
+            <span class="sp-rail" style="background:${e.c}"></span>
+            <div><div class="sp-ev-title">${e.title}</div><div class="sp-ev-time">${e.t}</div></div>
+          </div>`).join('')
+          : `<div class="sp-empty"><span class="icon">event_note</span><span>No events on this day</span></div>`;
+      }
+
+      $('Prev').addEventListener('click', () => { S.m--; if (S.m < 0) { S.m = 11; S.y--; } render(); });
+      $('Next').addEventListener('click', () => { S.m++; if (S.m > 11) { S.m = 0; S.y++; } render(); });
+      $('Today').addEventListener('click', () => {
+        const t = new Date();
+        S.y = t.getFullYear(); S.m = t.getMonth(); S.d = t.getDate();
+        render();
+      });
+      const addEvent = (title) => {
+        const k = key();
+        (extra[k] = extra[k] || []).push({ t: '12:00', title: title || 'New event', c: '#cdf3d8' });
+        render();
+      };
+      $('Add').addEventListener('click', () => addEvent());
+      render();
+      return { addEvent };
+    }
+
+    makeSplit('sp2', 2026, 8, 10);
+    const sp3 = makeSplit('sp3', 2026, 8, 10);
+
+    // task pill: dismiss / pulse / push to selected day
+    const task = document.getElementById('sp3Task');
+    document.getElementById('sp3TaskX').addEventListener('click', () => { task.classList.add('gone'); });
+    document.getElementById('sp3TaskRe').addEventListener('click', () => {
+      task.classList.remove('gone');
+      task.animate(
+        [{ opacity: 0.3 }, { opacity: 1 }],
+        { duration: 350, easing: 'ease-out' }
+      );
+    });
+    document.getElementById('sp3TaskAdd').addEventListener('click', () => sp3.addEvent('prepare for test'));
+
+  })();
+  </script>
+</body>
+</html>

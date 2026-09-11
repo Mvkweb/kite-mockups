@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>kite-shell — mockups</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0b1510; color: #e1e9e3;
+      font-family: 'Google Sans Flex', sans-serif;
+      min-height: 100vh; padding: 40px 24px;
+      display: flex; justify-content: center;
+    }
+    .wrap { width: 720px; max-width: 100%; display: flex; flex-direction: column; gap: 20px; }
+    h1 { font-size: 24px; letter-spacing: -0.02em; }
+    .sub { font-size: 14px; color: #9ab3a1; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+    .card {
+      background: #1c382b; border: 1px solid rgba(255,255,255,.07);
+      border-radius: 24px; padding: 18px;
+      display: flex; flex-direction: column; gap: 8px;
+      text-decoration: none; color: inherit;
+      transition: transform .12s ease, background .2s ease;
+    }
+    .card:hover { background: #23473b; transform: translateY(-1px); }
+    .card h2 { font-size: 16px; }
+    .card p { font-size: 12.5px; color: #9ab3a1; line-height: 1.5; }
+    .tag {
+      align-self: flex-start; font-size: 11px; font-weight: 700;
+      background: #bcf3cb; color: #093717;
+      padding: 3px 10px; border-radius: 999px;
+    }
+    .tag.dim { background: rgba(255,255,255,.1); color: #e1e9e3; }
+    code { font-size: 12px; color: #a0e6d6; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div>
+      <h1>kite-shell — mockups</h1>
+      <p class="sub">Organized previews. Shared tokens in <code>css/</code>, logic in <code>js/</code>, pages in <code>mockups/</code>.</p>
+    </div>
+    <div class="grid">
+      <a class="card" href="mockups/qs-tablet.html">
+        <span class="tag">main</span>
+        <h2>QS Tablet — Control Center</h2>
+        <p>760px 2-pane: sliders + tiles left, calendar + media widgets right. Bluetooth morph modal included.</p>
+      </a>
+      <a class="card" href="mockups/calendar.html">
+        <span class="tag">widget</span>
+        <h2>Calendar widget (isolated)</h2>
+        <p>Nested cleaner month grid, Mon-first, agenda rows. Same tokens, works standalone.</p>
+      </a>
+      <a class="card" href="mockups/bluetooth.html">
+        <span class="tag">dialog</span>
+        <h2>Bluetooth dialog (isolated)</h2>
+        <p>Segmented device list with morphing blob badges. Tap rows to toggle — same component as the QS modal.</p>
+      </a>
+      <a class="card" href="mockups/quickshare.html">
+        <span class="tag">dialog</span>
+        <h2>Quick Share dialog (isolated)</h2>
+        <p>Visibility modes with check select + nearby devices. Same sheet as the QS tablet.</p>
+      </a>
+      <a class="card" href="quicksettings.html">
+        <span class="tag dim">legacy</span>
+        <h2>quicksettings.html</h2>
+        <p>Original single-file monolith (pre-split). Keep until tablet version is approved, then delete.</p>
+      </a>
+    </div>
+    <p class="sub">Serve with <code>python3 -m http.server 8000</code> → open <code>http://127.0.0.1:8000/</code>. Refresh-safe.</p>
+  </div>
+</body>
+</html>
