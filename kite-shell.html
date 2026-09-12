@@ -3238,7 +3238,7 @@
     </div>
 
     <div class="demo-hud-divider"></div>
-    <div class="keyboard-hint">[Super] Launcher<br>[Esc] Close<br>[Space] Wave</div>
+      <div class="keyboard-hint">[Alt] Launcher<br>[Esc] Close<br>[Space] Wave</div>
   </div>
 
   <!-- MAIN INTERACTION & CHOREOGRAPHY SCRIPT -->
@@ -4714,7 +4714,8 @@
             closeAllSurfaces();
             updateHudActive(btnHudIdle);
           }
-        } else if (e.key === 'Meta' || e.key === 'Super') {
+        } else if (e.key === 'Alt') {
+          e.preventDefault();
           if (STATE.spotlightOpen) {
             closeSpotlight();
           } else {
